@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chatting App</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+        <!-- <script src="static/main.js"></script> -->
+    </head>
+    <body background="https://i.pinimg.com/474x/f4/94/27/f49427eb3bbae129b7d8cc25b88fc946.jpg">
+        <script>
+            var socket = io.connect(location.protocol+'//'+document.domain+':'+location.port);
+            socket.on('connect', function() {
+                socket.emit('join_room', {
+                    username:"{{username}}",
+                    roomNo:'{{ roomNo}}'
+                });
+            document.getElementById('message_input_form').onsubmit=function(e){
+                e.preventDefault();
+                let message=document.getElementById('message_input').value;
+                // console.log(message);
+                if(message.length){
+                        socket.emit('send',{
+                            username:"{{username}}",
+                            roomNo:"{{roomNo}}",
+                            message:message
+                        })
+                    }
+                    document.getElementById('message_input').value="";
+                }
+            });
+            socket.on('receive', function(data){
+                console.log(data);
+                const newNode=document.createElement('div');
+                newNode.innerHTML+=`<b>${data.username}:&nbsp;</b> ${data.message}`;
+                document.getElementById('msgList').appendChild(newNode);
+            })
+            socket.on('Join_room_announcement', function(data){
+                console.log(data);
+                const newNode=document.createElement('div');
+                newNode.innerHTML+=`<b>${data.username}</b> has joined the room`;
+                document.getElementById('msgList').appendChild(newNode);
+            })
+        </script>
+        <script src="static/main.js"></script>
+        <h1>Welcome to Chat Room {{roomNo}}</h1>
+        <div id="msgList"></div>
+        <form id="message_input_form">
+            <input type="text" id="message_input" placeholder="Enter you message here"></input>
+            <button type="submit">Send</button>
+            <!-- <button onClick="fetchUsers()"> Get Users</button> -->
+        </form>
+        
+        <!-- <button type="submit">Send</button> -->
+        
+    </body>
+</html>
